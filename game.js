@@ -27,12 +27,12 @@ let lastSavedCredits = 100;
 let inputCost = 10;
 
 const materials = [
-    { char: "Fe", weight: 45, yield: 20 },   // common
+    { char: "Fe", weight: 45, yield: 20 },
     { char: "Cu", weight: 30, yield: 30 },
     { char: "Ag", weight: 15, yield: 70 },
     { char: "Au", weight: 7,  yield: 200 },
-    { char: "Xe", weight: 2,  yield: 500 },  // rare
-    { char: "Q*", weight: 1,  yield: 1500 }  // ultra rare
+    { char: "Xe", weight: 2,  yield: 500 },
+    { char: "Q*", weight: 1,  yield: 1500 }
 ];
 const totalWeight = materials.reduce((s, x) => s + x.weight, 0);
 
@@ -44,7 +44,7 @@ const shells = [
 let ownedShells = ["default"];
 let currentShellId = "default";
 
-// Chemistry questions (in‑memory; admin can add more)
+// Chemistry questions
 let chemQuestions = [
     { q: "What is the chemical symbol for Sodium?", a: "Na" },
     { q: "How many protons does Carbon have?", a: "6" },
@@ -54,7 +54,7 @@ let chemQuestions = [
 ];
 let currentChemIndex = null;
 
-// --- AUTH FUNCTIONS (EXPOSED TO WINDOW) ---
+// --- AUTH ---
 window.login = async function() {
     const email = document.getElementById("emailInput").value;
     const pass = document.getElementById("passwordInput").value;
@@ -96,14 +96,12 @@ onAuthStateChanged(auth, async (user) => {
 
 // --- SAVE / LOAD ---
 async function saveProgress(uid) {
-    // basic anti‑cheat: clamp credits and ignore absurd jumps
     if (!Number.isFinite(credits)) credits = 0;
     if (credits < -1000000) credits = -1000000;
     if (credits > 1000000000) credits = 1000000000;
 
     const delta = credits - lastSavedCredits;
     if (Math.abs(delta) > 500000) {
-        // suspicious jump, revert
         credits = lastSavedCredits;
     }
 
@@ -195,7 +193,7 @@ function weightedRandomMaterial() {
     return materials[0];
 }
 
-// --- INPUT COST CONTROLS ---
+// --- INPUT COST ---
 window.setInputCost = function(amount) {
     inputCost = amount;
     document.getElementById("inputAmount").textContent = inputCost;
@@ -231,8 +229,8 @@ function renderShells() {
                     return;
                 }
                 credits -= shell.cost;
-                ownedShells.push(shell.id);
                 updateCredits();
+                ownedShells.push(shell.id);
                 saveNow();
             }
             applyShell(shell.id);
@@ -244,7 +242,7 @@ function renderShells() {
     });
 }
 
-// --- ULTRA OUTPUT ANIMATION ---
+// --- ULTRA OUTPUT ---
 function triggerUltraOutput() {
     const overlay = document.getElementById("ultraOverlay");
     overlay.style.display = "flex";
@@ -306,7 +304,7 @@ window.cycleFabricator = function() {
     }
 };
 
-// --- CHEMISTRY JOB LOGIC ---
+// --- CHEMISTRY JOB ---
 window.newChemQuestion = function() {
     if (chemQuestions.length === 0) {
         document.getElementById("chemQuestionText").textContent =
