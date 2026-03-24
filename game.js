@@ -4,10 +4,10 @@ import {
     onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
-    getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, getDocs 
+    getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, getDocs, where 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// --- FIREBASE CONFIG (REPLACE WITH YOURS) ---
+// --- FIREBASE CONFIG (YOUR VALUES) ---
 const firebaseConfig = {
     apiKey: "AIzaSyCwtZRAKW4KPUMG7Lj9DF8bWiC51ywnc6U",
     authDomain: "quantum-fabricator.firebaseapp.com",
@@ -341,14 +341,24 @@ window.submitChemAnswer = function() {
     currentChemIndex = null;
 };
 
+// --- CHEMISTRY SHIFT TOGGLE ---
+window.toggleChemShift = function() {
+    const panel = document.getElementById("chemJob");
+    if (panel.style.display === "block") {
+        panel.style.display = "none";
+    } else {
+        panel.style.display = "block";
+    }
+};
+
 // --- ADMIN MENU ---
 function revealAdminMenu() {
     document.getElementById("adminMenu").style.display = "block";
 }
 
 window.adminLogin = function() {
-    // password: "QuantumAdmin42" obfuscated
-    const parts = ["UXVh", "bnR1", "bUFk", "bWlu", "NDI="];
+    // password: "GreenOrange" obfuscated
+    const parts = ["R3JlZW4=", "T3Jhbmdl"];
     const encoded = parts.join("");
     const realPassword = atob(encoded);
 
@@ -377,4 +387,40 @@ window.adminAddQuestion = function() {
     document.getElementById("adminQInput").value = "";
     document.getElementById("adminAInput").value = "";
     alert("Question added for this session.");
+};
+
+// Admin: set another player's credits by email
+window.adminSetPlayerCredits = async function() {
+    const email = document.getElementById("adminTargetEmail").value.trim();
+    const val = parseInt(document.getElementById("adminTargetCredits").value, 10);
+    if (!email || !Number.isFinite(val)) {
+        alert("Provide a valid email and credit value.");
+        return;
+    }
+
+    try {
+        const q = query(
+            collection(db, "operators"),
+            where("email", "==", email)
+        );
+        const snap = await getDocs(q);
+        if (snap.empty) {
+            alert("No operator found with that email.");
+            return;
+        }
+
+        for (const docSnap of snap.docs) {
+            await setDoc(doc(db, "operators", docSnap.id), {
+                ...docSnap.data(),
+                credits: val,
+                updatedAt: Date.now()
+            });
+        }
+
+        alert("Player credits updated.");
+        await loadLeaderboard();
+    } catch (err) {
+        console.error(err);
+        alert("Error updating player credits.");
+    }
 };
