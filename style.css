@@ -182,7 +182,8 @@ input {
 }
 
 #shellShop,
-#leaderboard {
+#leaderboard,
+#upgradeShop {
     margin: 20px auto;
     padding: 16px;
     width: 420px;
@@ -193,11 +194,13 @@ input {
 }
 
 #shellShop h3,
-#leaderboard h3 {
+#leaderboard h3,
+#upgradeShop h3 {
     margin-top: 0;
 }
 
-#shellList button {
+#shellList button,
+#upgradeList button {
     width: 100%;
     margin: 4px 0;
     text-align: left;
@@ -286,6 +289,10 @@ input {
     border-radius: 10px;
     background: rgba(0,0,0,0.4);
     box-shadow: inset 0 0 10px rgba(0,0,0,0.7);
+}
+
+#chemDifficulty {
+    margin-top: 8px;
 }
 
 /* Admin */
