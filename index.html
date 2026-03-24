@@ -7,10 +7,10 @@
 </head>
 <body>
 
-<h1>Quantum Fabricator</h1>
+<h1>⚛️ Quantum Fabricator</h1>
 
 <div id="authScreen">
-    <h2>Login</h2>
+    <h2>Operator Login</h2>
     <input id="emailInput" type="email" placeholder="Email"><br>
     <input id="passwordInput" type="password" placeholder="Password"><br>
     <button onclick="login()">Login</button>
@@ -34,7 +34,7 @@
     </div>
 
     <div id="fabricator" class="shell-default">
-        <h2>Fabricator Unit</h2>
+        <h2>🧬 Fabricator Unit</h2>
         <div id="reels">
             <div class="reel" id="reel1">Fe</div>
             <div class="reel" id="reel2">Fe</div>
@@ -47,7 +47,7 @@
             <button onclick="setInputCost(50)">50</button>
             <button onclick="setInputCost(100)">100</button>
         </div>
-        <button id="cycleButton" onclick="cycleFabricator()">Run Cycle</button>
+        <button id="cycleButton" onclick="cycleFabricator()">⚙️ Run Cycle</button>
         <div id="fabricatorMessage"></div>
         <div id="ultraOverlay">
             <div>ULTRA OUTPUT!</div>
@@ -56,45 +56,69 @@
     </div>
 
     <div id="shellShop">
-        <h3>Fabricator Shells</h3>
+        <h3>🎨 Fabricator Shells</h3>
         <p class="smallNote">
             Shells are cosmetic only. No production advantage—just prestige.
         </p>
         <div id="shellList"></div>
     </div>
 
+    <div id="chemToggleBar">
+        <button id="openChemButton" onclick="toggleChemShift()">🧪 Open Chemistry Shift</button>
+    </div>
+
     <div id="chemJob">
-        <h3>Chemistry Shift</h3>
-        <p>
-            When your credits run low, you’re assigned to the chemistry floor.<br>
-            Answer questions correctly to earn more credits.
-        </p>
-        <div id="chemQuestionBox">
-            <p id="chemQuestionText">Press “New Question” to begin your shift.</p>
-            <input id="chemAnswerInput" placeholder="Your answer">
-            <button onclick="submitChemAnswer()">Submit Answer</button>
-            <button onclick="newChemQuestion()">New Question</button>
-            <p id="chemFeedback"></p>
+        <div id="chemHeader">
+            <span class="chemIcon">🧪</span>
+            <span class="chemTitle">Chemistry Shift Laboratory</span>
+            <button id="closeChemButton" onclick="toggleChemShift()">✖</button>
         </div>
-        <p class="smallNote">
-            Each correct answer earns you 40 credits.
-        </p>
+        <div id="chemInner">
+            <p>
+                When your credits run low, you’re assigned to the chemistry floor.<br>
+                Answer questions correctly to earn more credits.
+            </p>
+            <div id="chemQuestionBox">
+                <p id="chemQuestionText">Press “New Question” to begin your shift.</p>
+                <input id="chemAnswerInput" placeholder="Your answer">
+                <button onclick="submitChemAnswer()">✅ Submit</button>
+                <button onclick="newChemQuestion()">🧬 New Question</button>
+                <p id="chemFeedback"></p>
+            </div>
+            <p class="smallNote">
+                Each correct answer earns you 40 credits.
+            </p>
+        </div>
     </div>
 
     <div id="leaderboard">
-        <h3>Top Producers</h3>
+        <h3>🏆 Top Producers</h3>
         <ul id="leaderboardList"></ul>
     </div>
 
     <div id="adminBar">
-        <button onclick="adminLogin()">Admin Menu</button>
+        <button onclick="adminLogin()">🛠 Admin Menu</button>
     </div>
 
     <div id="adminMenu">
-        <h3>Admin Panel</h3>
-        <label>Set Credits:</label>
+        <h3>🛠 Admin Panel</h3>
+
+        <h4>Current Operator Credits</h4>
+        <label>Set your own credits:</label><br>
         <input id="adminMoneyInput" type="number" placeholder="Credits">
         <button onclick="adminSetMoney()">Apply</button>
+
+        <hr>
+
+        <h4>Adjust Player Credits (by email)</h4>
+        <input id="adminTargetEmail" placeholder="Player email">
+        <input id="adminTargetCredits" type="number" placeholder="New credits">
+        <button onclick="adminSetPlayerCredits()">Apply to Player</button>
+        <p class="smallNote">
+            This updates the player’s credits in the cloud and leaderboard.
+        </p>
+
+        <hr>
 
         <h4>Add Chemistry Question</h4>
         <input id="adminQInput" placeholder="Question">
