@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Quantum Fabricator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Quantum Fabricator</h1>
+
+<div id="authScreen">
+    <h2>Login</h2>
+    <input id="emailInput" type="email" placeholder="Email"><br>
+    <input id="passwordInput" type="password" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+    <button onclick="signup()">Create Account</button>
+    <p id="authMessage" style="color:yellow; min-height:20px;"></p>
+</div>
+
+<div id="gameContainer" style="display:none;">
+
+    <h2 id="welcomeText"></h2>
+    <div id="moneyDisplay">Credits: <span id="moneyValue">0</span></div>
+
+    <div id="howToPlay">
+        <strong>How to Operate:</strong><br>
+        • The Quantum Fabricator consumes input credits and outputs random materials.<br>
+        • Each cycle costs your current input cost.<br>
+        • Matching 3 materials yields a strong output; rare materials yield ultra output.<br>
+        • Buy fabricator shells (skins) for style only—no performance change.<br>
+        • If you run out of credits, work a chemistry shift: answer questions to earn more.<br>
+        • All credits are stored in the cloud—compete to be the top producer.
+    </div>
+
+    <div id="fabricator" class="shell-default">
+        <h2>Fabricator Unit</h2>
+        <div id="reels">
+            <div class="reel" id="reel1">Fe</div>
+            <div class="reel" id="reel2">Fe</div>
+            <div class="reel" id="reel3">Fe</div>
+        </div>
+        <div id="inputControls">
+            Input Cost: <span id="inputAmount">10</span> credits<br>
+            <button onclick="setInputCost(10)">10</button>
+            <button onclick="setInputCost(25)">25</button>
+            <button onclick="setInputCost(50)">50</button>
+            <button onclick="setInputCost(100)">100</button>
+        </div>
+        <button id="cycleButton" onclick="cycleFabricator()">Run Cycle</button>
+        <div id="fabricatorMessage"></div>
+        <div id="ultraOverlay">
+            <div>ULTRA OUTPUT!</div>
+            <div style="font-size:18px;">Rare material surge detected.</div>
+        </div>
+    </div>
+
+    <div id="shellShop">
+        <h3>Fabricator Shells</h3>
+        <p class="smallNote">
+            Shells are cosmetic only. No production advantage—just prestige.
+        </p>
+        <div id="shellList"></div>
+    </div>
+
+    <div id="chemJob">
+        <h3>Chemistry Shift</h3>
+        <p>
+            When your credits run low, you’re assigned to the chemistry floor.<br>
+            Answer questions correctly to earn more credits.
+        </p>
+        <div id="chemQuestionBox">
+            <p id="chemQuestionText">Press “New Question” to begin your shift.</p>
+            <input id="chemAnswerInput" placeholder="Your answer">
+            <button onclick="submitChemAnswer()">Submit Answer</button>
+            <button onclick="newChemQuestion()">New Question</button>
+            <p id="chemFeedback"></p>
+        </div>
+        <p class="smallNote">
+            Each correct answer earns you 40 credits.
+        </p>
+    </div>
+
+    <div id="leaderboard">
+        <h3>Top Producers</h3>
+        <ul id="leaderboardList"></ul>
+    </div>
+
+    <div id="adminBar">
+        <button onclick="adminLogin()">Admin Menu</button>
+    </div>
+
+    <div id="adminMenu">
+        <h3>Admin Panel</h3>
+        <label>Set Credits:</label>
+        <input id="adminMoneyInput" type="number" placeholder="Credits">
+        <button onclick="adminSetMoney()">Apply</button>
+
+        <h4>Add Chemistry Question</h4>
+        <input id="adminQInput" placeholder="Question">
+        <input id="adminAInput" placeholder="Answer">
+        <button onclick="adminAddQuestion()">Add Question</button>
+        <p class="smallNote">Questions are stored in memory for this session.</p>
+    </div>
+
+</div>
+
+<script type="module" src="game.js"></script>
+</body>
+</html>
