@@ -28,7 +28,7 @@
         • The Quantum Fabricator consumes input credits and outputs random materials.<br>
         • Each cycle costs your current input cost.<br>
         • Matching 3 materials yields a strong output; rare materials yield ultra output.<br>
-        • Buy fabricator shells (skins) for style only—no performance change.<br>
+        • Buy fabricator shells (skins) and upgrades to improve efficiency.<br>
         • If you run out of credits, work a chemistry shift: answer questions to earn more.<br>
         • All credits are stored in the cloud—compete to be the top producer.
     </div>
@@ -63,6 +63,14 @@
         <div id="shellList"></div>
     </div>
 
+    <div id="upgradeShop">
+        <h3>⚙️ Upgrades</h3>
+        <p class="smallNote">
+            Upgrades improve efficiency, output, and chemistry rewards.
+        </p>
+        <div id="upgradeList"></div>
+    </div>
+
     <div id="chemToggleBar">
         <button id="openChemButton" onclick="toggleChemShift()">🧪 Open Chemistry Shift</button>
     </div>
@@ -78,6 +86,15 @@
                 When your credits run low, you’re assigned to the chemistry floor.<br>
                 Answer questions correctly to earn more credits.
             </p>
+
+            <div id="chemDifficulty">
+                <span class="smallNote">Select difficulty:</span><br>
+                <button onclick="setChemDifficulty('easy')">🟢 Easy</button>
+                <button onclick="setChemDifficulty('medium')">🟡 Medium</button>
+                <button onclick="setChemDifficulty('hard')">🔴 Hard</button>
+                <p class="smallNote" id="chemDifficultyLabel">Current: Easy (base reward 40)</p>
+            </div>
+
             <div id="chemQuestionBox">
                 <p id="chemQuestionText">Press “New Question” to begin your shift.</p>
                 <input id="chemAnswerInput" placeholder="Your answer">
@@ -86,7 +103,7 @@
                 <p id="chemFeedback"></p>
             </div>
             <p class="smallNote">
-                Each correct answer earns you 40 credits.
+                Higher difficulty = higher rewards. Chemistry Bonus upgrades increase rewards further.
             </p>
         </div>
     </div>
