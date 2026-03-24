@@ -9,12 +9,12 @@ import {
 
 // --- FIREBASE CONFIG (REPLACE WITH YOURS) ---
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyCwtZRAKW4KPUMG7Lj9DF8bWiC51ywnc6U",
+    authDomain: "quantum-fabricator.firebaseapp.com",
+    projectId: "quantum-fabricator",
+    storageBucket: "quantum-fabricator.firebasestorage.app",
+    messagingSenderId: "96015622587",
+    appId: "1:96015622587:web:7a39bd07332fdde4b9e49e"
 };
 
 const app = initializeApp(firebaseConfig);
