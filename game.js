@@ -44,14 +44,83 @@ const shells = [
 let ownedShells = ["default"];
 let currentShellId = "default";
 
-// Chemistry questions
-let chemQuestions = [
-    { q: "What is the chemical symbol for Sodium?", a: "Na" },
-    { q: "How many protons does Carbon have?", a: "6" },
-    { q: "What is the chemical symbol for Potassium?", a: "K" },
-    { q: "What is the pH of pure water at 25°C?", a: "7" },
-    { q: "What is the chemical symbol for Iron?", a: "Fe" }
+// --- UPGRADES ---
+let upgrades = {
+    inputEfficiency: 0, // reduces input cost
+    outputBooster: 0,   // increases yield
+    ultraChance: 0,     // increases chance of Q*
+    chemBonus: 0        // increases chem rewards
+};
+
+const upgradeDefs = [
+    {
+        id: "inputEfficiency",
+        name: "Input Efficiency",
+        maxLevel: 3,
+        baseCost: 500,
+        desc: "Reduces input cost per cycle."
+    },
+    {
+        id: "outputBooster",
+        name: "Output Booster",
+        maxLevel: 3,
+        baseCost: 800,
+        desc: "Increases output from matches."
+    },
+    {
+        id: "ultraChance",
+        name: "Ultra Output Chance",
+        maxLevel: 3,
+        baseCost: 1200,
+        desc: "Slightly increases chance of rare Q* material."
+    },
+    {
+        id: "chemBonus",
+        name: "Chemistry Bonus",
+        maxLevel: 3,
+        baseCost: 600,
+        desc: "Increases credits from Chemistry Shift."
+    }
 ];
+
+// --- CHEMISTRY QUESTIONS WITH TIERS ---
+let chemQuestions = {
+    easy: [
+        { q: "What is the chemical symbol for Helium?", a: "He" },
+        { q: "How many protons does Oxygen have?", a: "8" },
+        { q: "What is the pH of pure water?", a: "7" },
+        { q: "What is the chemical formula for water?", a: "H2O" },
+        { q: "What is the chemical symbol for Sodium?", a: "Na" },
+        { q: "What subatomic particle has a negative charge?", a: "Electron" },
+        { q: "What is the chemical symbol for Carbon?", a: "C" },
+        { q: "What is the chemical symbol for Iron?", a: "Fe" },
+        { q: "What state of matter has a definite shape?", a: "Solid" }
+    ],
+    medium: [
+        { q: "What type of bond involves sharing electrons?", a: "Covalent" },
+        { q: "What type of bond involves transferring electrons?", a: "Ionic" },
+        { q: "What is the chemical formula for methane?", a: "CH4" },
+        { q: "What is the universal solvent?", a: "Water" },
+        { q: "What is the term for a substance that speeds up a reaction?", a: "Catalyst" },
+        { q: "What is the term for the starting substances in a reaction?", a: "Reactants" },
+        { q: "What is the term for the substances produced?", a: "Products" },
+        { q: "What is the chemical formula for ammonia?", a: "NH3" },
+        { q: "What is the term for a uniform mixture?", a: "Homogeneous" }
+    ],
+    hard: [
+        { q: "What is the SI unit for amount of substance?", a: "Mole" },
+        { q: "What number does one mole represent?", a: "6.022e23" },
+        { q: "What is the term for a reaction that absorbs heat?", a: "Endothermic" },
+        { q: "What is the term for a reaction that releases heat?", a: "Exothermic" },
+        { q: "What is the chemical formula for sulfuric acid?", a: "H2SO4" },
+        { q: "What is the chemical formula for nitric acid?", a: "HNO3" },
+        { q: "What is the term for a negatively charged ion?", a: "Anion" },
+        { q: "What is the term for a positively charged ion?", a: "Cation" },
+        { q: "What is the term for the smallest unit of a compound?", a: "Molecule" }
+    ]
+};
+
+let currentChemTier = "easy";
 let currentChemIndex = null;
 
 // --- AUTH ---
@@ -87,6 +156,7 @@ onAuthStateChanged(auth, async (user) => {
             "Operator: " + (user.email || "Unknown");
         await loadProgress(user.uid);
         renderShells();
+        renderUpgrades();
         await loadLeaderboard();
     } else {
         document.getElementById("authScreen").style.display = "block";
@@ -112,6 +182,7 @@ async function saveProgress(uid) {
         credits: credits,
         ownedShells: ownedShells,
         currentShellId: currentShellId,
+        upgrades: upgrades,
         updatedAt: Date.now()
     });
     await loadLeaderboard();
@@ -135,11 +206,33 @@ async function loadProgress(uid) {
         } else {
             currentShellId = "default";
         }
+
+        if (data.upgrades && typeof data.upgrades === "object") {
+            upgrades = {
+                inputEfficiency: data.upgrades.inputEfficiency || 0,
+                outputBooster: data.upgrades.outputBooster || 0,
+                ultraChance: data.upgrades.ultraChance || 0,
+                chemBonus: data.upgrades.chemBonus || 0
+            };
+        } else {
+            upgrades = {
+                inputEfficiency: 0,
+                outputBooster: 0,
+                ultraChance: 0,
+                chemBonus: 0
+            };
+        }
     } else {
         credits = 100;
         lastSavedCredits = 100;
         ownedShells = ["default"];
         currentShellId = "default";
+        upgrades = {
+            inputEfficiency: 0,
+            outputBooster: 0,
+            ultraChance: 0,
+            chemBonus: 0
+        };
         await saveProgress(uid);
     }
     updateCredits();
@@ -184,20 +277,17 @@ function setFabricatorMessage(text, isWin) {
     el.className = isWin ? "winText" : "loseText";
 }
 
-function weightedRandomMaterial() {
-    let r = Math.random() * totalWeight;
-    for (const m of materials) {
-        if (r < m.weight) return m;
-        r -= m.weight;
-    }
-    return materials[0];
-}
-
-// --- INPUT COST ---
+// --- INPUT COST (with efficiency upgrade) ---
 window.setInputCost = function(amount) {
     inputCost = amount;
     document.getElementById("inputAmount").textContent = inputCost;
 };
+
+function getEffectiveInputCost() {
+    const level = upgrades.inputEfficiency || 0;
+    const reduction = [0, 0.05, 0.10, 0.15][level] || 0;
+    return Math.max(1, Math.round(inputCost * (1 - reduction)));
+}
 
 // --- SHELLS ---
 function applyShell(id) {
@@ -242,6 +332,72 @@ function renderShells() {
     });
 }
 
+// --- UPGRADES RENDER & BUY ---
+function getUpgradeLevel(id) {
+    return upgrades[id] || 0;
+}
+
+function getUpgradeCost(def, level) {
+    // simple scaling: baseCost * (level + 1)
+    return def.baseCost * (level + 1);
+}
+
+function renderUpgrades() {
+    const list = document.getElementById("upgradeList");
+    if (!list) return;
+    list.innerHTML = "";
+
+    upgradeDefs.forEach(def => {
+        const level = getUpgradeLevel(def.id);
+        const maxed = level >= def.maxLevel;
+        const cost = getUpgradeCost(def, level);
+
+        const btn = document.createElement("button");
+        let label = `${def.name} (Lv ${level}/${def.maxLevel}) - ${def.desc}`;
+        if (!maxed) {
+            label += ` | Next: ${cost} credits`;
+        } else {
+            label += " | MAXED";
+        }
+        btn.textContent = label;
+
+        btn.onclick = () => {
+            if (maxed) {
+                alert("This upgrade is already at max level.");
+                return;
+            }
+            if (credits < cost) {
+                alert("Insufficient credits for this upgrade.");
+                return;
+            }
+            credits -= cost;
+            upgrades[def.id] = level + 1;
+            updateCredits();
+            saveNow();
+            renderUpgrades();
+        };
+
+        list.appendChild(btn);
+    });
+}
+
+// --- MATERIAL SELECTION (with ultraChance upgrade) ---
+function weightedRandomMaterial() {
+    // ultraChance upgrade: small extra chance to force Q*
+    const level = upgrades.ultraChance || 0;
+    const bonusChance = [0, 0.001, 0.002, 0.005][level] || 0;
+    if (Math.random() < bonusChance) {
+        return materials.find(m => m.char === "Q*") || materials[materials.length - 1];
+    }
+
+    let r = Math.random() * totalWeight;
+    for (const m of materials) {
+        if (r < m.weight) return m;
+        r -= m.weight;
+    }
+    return materials[0];
+}
+
 // --- ULTRA OUTPUT ---
 function triggerUltraOutput() {
     const overlay = document.getElementById("ultraOverlay");
@@ -251,14 +407,16 @@ function triggerUltraOutput() {
     }, 1200);
 }
 
-// --- FABRICATOR LOGIC ---
+// --- FABRICATOR LOGIC (with outputBooster) ---
 window.cycleFabricator = function() {
-    if (credits < inputCost) {
+    const effectiveCost = getEffectiveInputCost();
+
+    if (credits < effectiveCost) {
         setFabricatorMessage("Insufficient credits. Report to chemistry shift.", false);
         return;
     }
 
-    credits -= inputCost;
+    credits -= effectiveCost;
     updateCredits();
     saveNow();
 
@@ -283,13 +441,18 @@ window.cycleFabricator = function() {
     let ultra = false;
 
     if (m1.char === m2.char && m2.char === m3.char) {
-        yieldAmount = m1.yield * (inputCost / 10);
+        yieldAmount = m1.yield * (effectiveCost / 10);
         if (m1.char === "Q*") {
             ultra = true;
         }
     } else if (m1.char === m2.char || m2.char === m3.char || m1.char === m3.char) {
-        yieldAmount = 5 * (inputCost / 10);
+        yieldAmount = 5 * (effectiveCost / 10);
     }
+
+    // apply outputBooster
+    const outLevel = upgrades.outputBooster || 0;
+    const outBonus = [0, 0.05, 0.10, 0.20][outLevel] || 0;
+    yieldAmount = Math.round(yieldAmount * (1 + outBonus));
 
     if (yieldAmount > 0) {
         credits += yieldAmount;
@@ -304,16 +467,27 @@ window.cycleFabricator = function() {
     }
 };
 
-// --- CHEMISTRY JOB ---
+// --- CHEMISTRY JOB (with tiers + chemBonus) ---
+window.setChemDifficulty = function(tier) {
+    if (!chemQuestions[tier]) return;
+    currentChemTier = tier;
+    const label = document.getElementById("chemDifficultyLabel");
+    let base = 40;
+    if (tier === "medium") base = 80;
+    if (tier === "hard") base = 150;
+    label.textContent = `Current: ${tier.charAt(0).toUpperCase() + tier.slice(1)} (base reward ${base})`;
+};
+
 window.newChemQuestion = function() {
-    if (chemQuestions.length === 0) {
+    const pool = chemQuestions[currentChemTier];
+    if (!pool || pool.length === 0) {
         document.getElementById("chemQuestionText").textContent =
-            "No questions available.";
+            "No questions available for this tier.";
         return;
     }
-    currentChemIndex = Math.floor(Math.random() * chemQuestions.length);
+    currentChemIndex = Math.floor(Math.random() * pool.length);
     document.getElementById("chemQuestionText").textContent =
-        chemQuestions[currentChemIndex].q;
+        pool[currentChemIndex].q;
     document.getElementById("chemAnswerInput").value = "";
     document.getElementById("chemFeedback").textContent = "";
 };
@@ -324,11 +498,26 @@ window.submitChemAnswer = function() {
             "Request a new question first.";
         return;
     }
+    const pool = chemQuestions[currentChemTier];
+    if (!pool || !pool[currentChemIndex]) {
+        document.getElementById("chemFeedback").textContent =
+            "Question not found. Request a new one.";
+        currentChemIndex = null;
+        return;
+    }
+
     const userAns = document.getElementById("chemAnswerInput").value.trim();
-    const correctAns = chemQuestions[currentChemIndex].a.trim();
+    const correctAns = pool[currentChemIndex].a.trim();
+
+    let baseReward = 40;
+    if (currentChemTier === "medium") baseReward = 80;
+    if (currentChemTier === "hard") baseReward = 150;
+
+    const chemLevel = upgrades.chemBonus || 0;
+    const chemBonus = [0, 0.10, 0.20, 0.40][chemLevel] || 0;
+    const reward = Math.round(baseReward * (1 + chemBonus));
 
     if (userAns.toLowerCase() === correctAns.toLowerCase()) {
-        const reward = 40;
         credits += reward;
         updateCredits();
         saveNow();
@@ -383,10 +572,11 @@ window.adminAddQuestion = function() {
     const q = document.getElementById("adminQInput").value.trim();
     const a = document.getElementById("adminAInput").value.trim();
     if (!q || !a) return;
-    chemQuestions.push({ q, a });
+    // add to current tier (easy) by default
+    chemQuestions.easy.push({ q, a });
     document.getElementById("adminQInput").value = "";
     document.getElementById("adminAInput").value = "";
-    alert("Question added for this session.");
+    alert("Question added to Easy tier for this session.");
 };
 
 // Admin: set another player's credits by email
